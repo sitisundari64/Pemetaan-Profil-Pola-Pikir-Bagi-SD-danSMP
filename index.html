@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Peta Pola Pikir — Asesmen Mindset Murid SD &amp; SMP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --forest:#1F3A2E;
+  --forest-light:#2C5443;
+  --sprout:#4F9D69;
+  --sprout-light:#DCEEE1;
+  --amber:#E08A2B;
+  --amber-light:#FBEAD2;
+  --sky:#4E7FA0;
+  --sky-light:#DCE9F0;
+  --paper:#FBF8F2;
+  --paper-dim:#F1ECE0;
+  --ink:#20261F;
+  --ink-soft:#5B645A;
+  --line:#DDD6C4;
+  --radius:16px;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--paper-dim);color:var(--ink);font-family:'Plus Jakarta Sans',sans-serif;line-height:1.5;}
+h1,h2,h3,.display{font-family:'Fredoka',sans-serif;}
+.wrap{max-width:920px;margin:0 auto;padding:0 20px 60px;}
+
+/* HEADER */
+header.hero{background:var(--forest);color:var(--paper);padding:48px 20px 64px;position:relative;overflow:hidden;}
+header.hero::after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle, var(--sprout) 0%, transparent 70%);opacity:.35;}
+.hero-inner{max-width:920px;margin:0 auto;position:relative;}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--sprout-light);font-weight:700;margin:0 0 10px;}
+header.hero h1{font-size:clamp(28px,4vw,42px);margin:0 0 12px;font-weight:700;}
+header.hero p{max-width:560px;color:#D8E3D9;margin:0;font-size:15px;}
+
+/* TABS */
+.tabbar{display:flex;gap:8px;margin:-28px auto 28px;max-width:920px;padding:0 20px;position:relative;z-index:2;}
+.tab{flex:1;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px 16px;cursor:pointer;font-family:'Fredoka',sans-serif;font-weight:600;font-size:14px;color:var(--ink-soft);text-align:center;box-shadow:0 4px 14px rgba(31,58,46,.12);transition:.15s;}
+.tab.active{background:var(--forest);color:#fff;border-color:var(--forest);}
+
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:28px;margin-bottom:20px;}
+.card h2{margin:0 0 4px;font-size:20px;}
+.card .sub{color:var(--ink-soft);font-size:13px;margin:0 0 22px;}
+
+/* FORM */
+.grid2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:6px;}
+@media(max-width:640px){.grid2{grid-template-columns:1fr;}}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;}
+.field input,.field select{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:14px;background:#fff;color:var(--ink);}
+.field input:focus,.field select:focus{outline:2px solid var(--sprout);border-color:var(--sprout);}
+
+.stmt-list{display:flex;flex-direction:column;gap:12px;margin-top:24px;}
+.stmt{display:flex;align-items:center;gap:16px;border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;background:#fff;}
+.stmt.missing{border-color:var(--amber);background:var(--amber-light);}
+.stmt .num{flex:0 0 30px;height:30px;border-radius:50%;background:var(--forest);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'Fredoka',sans-serif;font-size:13px;}
+.stmt .txt{flex:1;font-size:14.5px;}
+.toggle{display:flex;gap:6px;flex:0 0 auto;}
+.toggle button{border:1.5px solid var(--line);background:#fff;padding:8px 14px;border-radius:9px;font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;color:var(--ink-soft);}
+.toggle button.on-yes.active{background:var(--sprout);border-color:var(--sprout);color:#fff;}
+.toggle button.on-no.active{background:var(--ink-soft);border-color:var(--ink-soft);color:#fff;}
+@media(max-width:560px){.stmt{flex-wrap:wrap;}.toggle{width:100%;}.toggle button{flex:1;}}
+
+.banner{display:none;background:var(--amber-light);border:1.5px solid var(--amber);color:#7A4A0F;padding:12px 16px;border-radius:10px;font-size:13.5px;font-weight:600;margin-top:18px;}
+.banner.show{display:block;}
+
+.btn{font-family:'Fredoka',sans-serif;font-weight:600;border:none;border-radius:11px;padding:13px 22px;font-size:14.5px;cursor:pointer;transition:.15s;}
+.btn-primary{background:var(--forest);color:#fff;}
+.btn-primary:hover{background:var(--forest-light);}
+.btn-ghost{background:transparent;color:var(--forest);border:1.5px solid var(--forest);}
+.btn-ghost:hover{background:var(--forest);color:#fff;}
+.btn-sm{padding:8px 14px;font-size:12.5px;border-radius:8px;}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px;}
+
+/* RESULT */
+#resultCard{display:none;}
+.result-top{display:flex;gap:28px;align-items:center;flex-wrap:wrap;}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:13px;}
+.badge-PPT{background:var(--amber-light);color:#7A4A0F;}
+.badge-PPB{background:var(--sprout-light);color:#1F5A37;}
+.badge-Campuran{background:var(--sky-light);color:#2B4D63;}
+.growth-meter{flex:0 0 140px;}
+.bars{margin-top:18px;display:flex;flex-direction:column;gap:14px;}
+.bar-row .lbl{display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;color:var(--ink-soft);margin-bottom:5px;}
+.bar-track{height:14px;border-radius:8px;background:var(--paper-dim);overflow:hidden;}
+.bar-fill{height:100%;border-radius:8px;transition:width .6s ease;}
+.fill-amber{background:var(--amber);}
+.fill-sprout{background:var(--sprout);}
+.desc-box{margin-top:20px;padding:18px;border-radius:12px;background:var(--paper-dim);font-size:14px;}
+.tip-box{margin-top:14px;padding:18px;border-radius:12px;border:1.5px dashed var(--line);font-size:13.5px;color:var(--ink-soft);}
+.tip-box b{color:var(--ink);}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:13.5px;}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);padding:10px 8px;border-bottom:2px solid var(--line);}
+td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle;}
+.pill{padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:700;display:inline-block;}
+.empty-state{text-align:center;padding:40px 20px;color:var(--ink-soft);}
+.empty-state .ico{font-size:32px;display:block;margin-bottom:10px;}
+.row-actions{display:flex;gap:6px;}
+.row-actions button{border:none;background:none;cursor:pointer;font-size:13px;padding:4px 6px;border-radius:6px;color:var(--ink-soft);}
+.row-actions button:hover{background:var(--paper-dim);}
+
+footer{text-align:center;padding:28px 20px 40px;font-size:12px;color:var(--ink-soft);}
+
+.hidden{display:none !important;}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <p class="eyebrow">Asesmen Mindset • SD &amp; SMP</p>
+    <h1>Peta Pola Pikir Murid</h1>
+    <p>Alat bantu wali kelas dan guru BK untuk memetakan kecenderungan pola pikir tetap (fixed mindset) atau pola pikir bertumbuh (growth mindset) pada murid, berdasarkan 10 pernyataan refleksi diri.</p>
+  </div>
+</header>
+
+<div class="tabbar">
+  <div class="tab active" id="tabIsi" onclick="switchTab('isi')">📝 Isi Asesmen</div>
+  <div class="tab" id="tabRekap" onclick="switchTab('rekap')">📊 Rekap Kelas</div>
+</div>
+
+<div class="wrap">
+
+  <!-- ====== TAB ISI ASESMEN ====== -->
+  <div id="panelIsi">
+    <div class="card">
+      <h2>Data Murid</h2>
+      <p class="sub">Lengkapi identitas sebelum mengisi pernyataan.</p>
+      <div class="grid2">
+        <div class="field"><label>Nama Murid</label><input id="inNama" placeholder="cth. Ahmad Fauzan"></div>
+        <div class="field"><label>Jenjang</label>
+          <select id="inJenjang">
+            <option value="">Pilih jenjang</option>
+            <option value="SD">SD</option>
+            <option value="SMP">SMP</option>
+          </select>
+        </div>
+        <div class="field"><label>Kelas</label><input id="inKelas" placeholder="cth. VII A"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Pernyataan Refleksi Diri</h2>
+      <p class="sub">Minta murid membaca tiap pernyataan, lalu pilih <b>Setuju</b> atau <b>Tidak Setuju</b> sesuai dirinya — tidak ada jawaban benar atau salah.</p>
+      <div class="stmt-list" id="stmtList"></div>
+      <div class="banner" id="warnBanner">Lengkapi nama, jenjang, kelas, dan jawab seluruh 10 pernyataan terlebih dahulu ya.</div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="submitAssessment()">Lihat Hasil →</button>
+        <button class="btn btn-ghost" onclick="resetForm()">Reset Form</button>
+      </div>
+    </div>
+
+    <div class="card" id="resultCard">
+      <h2>Hasil Pemetaan</h2>
+      <p class="sub" id="resultWho"></p>
+      <div class="result-top">
+        <div id="resultBadgeWrap"></div>
+      </div>
+      <div class="bars">
+        <div class="bar-row">
+          <div class="lbl"><span>Skor A — indikasi Pola Pikir Tetap (soal ganjil)</span><span id="scoreA">0/5</span></div>
+          <div class="bar-track"><div class="bar-fill fill-amber" id="barA" style="width:0%"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="lbl"><span>Skor B — indikasi Pola Pikir Bertumbuh (soal genap)</span><span id="scoreB">0/5</span></div>
+          <div class="bar-track"><div class="bar-fill fill-sprout" id="barB" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="desc-box" id="descBox"></div>
+      <div class="tip-box" id="tipBox"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btnDownloadOne" onclick="downloadIndividualPDF()">⬇ Unduh PDF Hasil Ini</button>
+        <button class="btn btn-ghost" onclick="switchTab('rekap')">Lihat di Rekap Kelas →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== TAB REKAP ====== -->
+  <div id="panelRekap" class="hidden">
+    <div class="card">
+      <h2>Rekap Hasil Kelas</h2>
+      <p class="sub">Data tersimpan selama sesi ini berjalan di perangkat. Gunakan <b>Ekspor JSON</b> untuk menyimpan dan memuatnya kembali kapan saja.</p>
+      <div style="overflow-x:auto;">
+        <table id="recapTable">
+          <thead>
+            <tr><th>#</th><th>Nama</th><th>Jenjang/Kelas</th><th>A (Tetap)</th><th>B (Tumbuh)</th><th>Profil</th><th>Tanggal</th><th></th></tr>
+          </thead>
+          <tbody id="recapBody"></tbody>
+        </table>
+        <div class="empty-state" id="emptyState">
+          <span class="ico">🌱</span>
+          Belum ada data murid. Isi asesmen pada tab "Isi Asesmen" terlebih dahulu.
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="downloadRecapPDF()">⬇ Unduh PDF Rekap Semua</button>
+        <button class="btn btn-ghost" onclick="exportJSON()">💾 Ekspor JSON</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('importFile').click()">📂 Muat JSON</button>
+        <input type="file" id="importFile" accept=".json" class="hidden" onchange="importJSON(event)">
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Cara Menentukan Profil Pola Pikir</h2>
+      <p class="sub" style="margin-bottom:8px;">Acuan penilaian yang dipakai aplikasi ini:</p>
+      <ul style="font-size:13.5px;color:var(--ink-soft);line-height:1.8;margin:0;padding-left:18px;">
+        <li>Pernyataan bernomor <b>ganjil</b> (1,3,5,7,9) merepresentasikan orientasi <b>Pola Pikir Tetap</b>.</li>
+        <li>Pernyataan bernomor <b>genap</b> (2,4,6,8,10) merepresentasikan orientasi <b>Pola Pikir Bertumbuh</b>.</li>
+        <li>A = jumlah jawaban "Setuju" pada nomor ganjil. B = jumlah jawaban "Setuju" pada nomor genap.</li>
+        <li>A &gt; B → terindikasi <b>Pola Pikir Tetap (PPT)</b>. A = B → <b>Pola Pikir Campuran</b>. A &lt; B → <b>Pola Pikir Bertumbuh (PPB)</b>.</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<footer>Copyright 2026 Siti Sundari</footer>
+
+<script>
+const STATEMENTS = [
+  {id:1, text:"Saya memiliki kelemahan dalam melakukan beberapa hal."},
+  {id:2, text:"Tidak masalah bila saya gagal sebab itu kesempatan untuk belajar."},
+  {id:3, text:"Jika orang lain melakukan sesuatu yang lebih baik daripada saya, itu akan menyebabkan saya merasa rendah diri."},
+  {id:4, text:"Saya suka mencoba hal-hal yang baru meskipun hal ini memiliki risiko."},
+  {id:5, text:"Saya merasa sukses pada saat mampu menunjukkan kepada orang lain bahwa saya mahir dalam suatu bidang."},
+  {id:6, text:"Ketika orang lain sukses, saya merasa terinspirasi dan ingin melakukan hal yang sama."},
+  {id:7, text:"Saya senang saat mampu melakukan sesuatu yang tidak bisa dilakukan orang lain."},
+  {id:8, text:"Tingkat kecerdasan bisa diubah lewat belajar dan berlatih."},
+  {id:9, text:"Menurut pendapat saya, manusia dilahirkan dengan tingkat kecerdasan tertentu yang tidak bisa diubah lagi."},
+  {id:10, text:"Kesulitan membuat saya ingin berusaha lebih keras lagi."}
+];
+
+const PROFILE_INFO = {
+  PPT: {
+    name:"Pola Pikir Tetap (Fixed Mindset)",
+    color:"amber",
+    desc:"Murid cenderung meyakini bahwa kemampuan dan kecerdasan adalah sesuatu yang menetap. Murid bisa jadi menghindari tantangan, mudah berkecil hati saat gagal, dan menilai diri dari hasil dibanding orang lain.",
+    tip:"<b>Rekomendasi:</b> Berikan apresiasi pada proses dan usaha, bukan hanya hasil. Ajak murid mencoba tantangan kecil dengan risiko gagal yang aman, dan normalkan kesalahan sebagai bagian dari belajar."
+  },
+  PPB: {
+    name:"Pola Pikir Bertumbuh (Growth Mindset)",
+    color:"sprout",
+    desc:"Murid cenderung meyakini bahwa kemampuan bisa dikembangkan lewat usaha dan latihan. Murid lebih terbuka pada tantangan, tidak mudah menyerah, dan melihat kegagalan sebagai bagian dari proses belajar.",
+    tip:"<b>Rekomendasi:</b> Pertahankan dengan memberi tantangan yang sesuai level perkembangan, dorong refleksi atas strategi belajar, dan jadikan murid ini teladan kolaborasi positif bagi teman sekelas."
+  },
+  Campuran: {
+    name:"Pola Pikir Campuran",
+    color:"sky",
+    desc:"Murid menunjukkan kecenderungan yang seimbang antara pola pikir tetap dan bertumbuh, tergantung situasi atau bidang yang dihadapi.",
+    tip:"<b>Rekomendasi:</b> Amati pada situasi apa murid condong ke pola pikir tetap (mis. mata pelajaran tertentu), lalu berikan penguatan dan umpan balik berbasis usaha pada area tersebut secara konsisten."
+  }
+};
+
+let answers = {};
+let recap = [];
+let lastResult = null;
+
+function renderStatements(){
+  const list = document.getElementById('stmtList');
+  list.innerHTML = STATEMENTS.map(s => `
+    <div class="stmt" id="stmt-${s.id}">
+      <div class="num">${s.id}</div>
+      <div class="txt">${s.text}</div>
+      <div class="toggle">
+        <button class="on-yes" onclick="setAnswer(${s.id}, 'setuju')" id="yes-${s.id}">Setuju</button>
+        <button class="on-no" onclick="setAnswer(${s.id}, 'tidak')" id="no-${s.id}">Tidak Setuju</button>
+      </div>
+    </div>`).join('');
+}
+renderStatements();
+
+function setAnswer(id, val){
+  answers[id] = val;
+  document.getElementById('yes-'+id).classList.toggle('active', val==='setuju');
+  document.getElementById('no-'+id).classList.toggle('active', val==='tidak');
+  document.getElementById('stmt-'+id).classList.remove('missing');
+}
+
+function switchTab(tab){
+  document.getElementById('panelIsi').classList.toggle('hidden', tab!=='isi');
+  document.getElementById('panelRekap').classList.toggle('hidden', tab!=='rekap');
+  document.getElementById('tabIsi').classList.toggle('active', tab==='isi');
+  document.getElementById('tabRekap').classList.toggle('active', tab==='rekap');
+  if(tab==='rekap') renderRecap();
+}
+
+function submitAssessment(){
+  const nama = document.getElementById('inNama').value.trim();
+  const jenjang = document.getElementById('inJenjang').value;
+  const kelas = document.getElementById('inKelas').value.trim();
+  let missing = [];
+  STATEMENTS.forEach(s => { if(!answers[s.id]){ missing.push(s.id); document.getElementById('stmt-'+s.id).classList.add('missing'); } });
+
+  const banner = document.getElementById('warnBanner');
+  if(!nama || !jenjang || !kelas || missing.length>0){
+    banner.classList.add('show');
+    if(missing.length>0) document.getElementById('stmt-'+missing[0]).scrollIntoView({behavior:'smooth', block:'center'});
+    else window.scrollTo({top:0, behavior:'smooth'});
+    return;
+  }
+  banner.classList.remove('show');
+
+  let A=0, B=0;
+  STATEMENTS.forEach(s=>{
+    const agree = answers[s.id]==='setuju';
+    if(s.id % 2 === 1){ if(agree) A++; } else { if(agree) B++; }
+  });
+
+  let code = A>B ? 'PPT' : (A===B ? 'Campuran' : 'PPB');
+
+  lastResult = {
+    nama, jenjang, kelas, A, B, code,
+    tanggal: new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'}),
+    jawaban: STATEMENTS.map(s=>({no:s.id, teks:s.text, jawaban: answers[s.id]==='setuju' ? 'Setuju' : 'Tidak Setuju'}))
+  };
+
+  showResult(lastResult);
+  recap.push(lastResult);
+  document.getElementById('resultCard').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function showResult(r){
+  const info = PROFILE_INFO[r.code];
+  document.getElementById('resultCard').style.display = 'block';
+  document.getElementById('resultWho').textContent = `${r.nama} — ${r.jenjang} • Kelas ${r.kelas} • ${r.tanggal}`;
+  document.getElementById('resultBadgeWrap').innerHTML = `<span class="badge badge-${r.code}">${r.code==='PPT'?'🔒':r.code==='PPB'?'🌱':'🔄'} ${info.name}</span>`;
+  document.getElementById('scoreA').textContent = r.A + '/5';
+  document.getElementById('scoreB').textContent = r.B + '/5';
+  document.getElementById('barA').style.width = (r.A/5*100)+'%';
+  document.getElementById('barB').style.width = (r.B/5*100)+'%';
+  document.getElementById('descBox').textContent = info.desc;
+  document.getElementById('tipBox').innerHTML = info.tip;
+}
+
+function resetForm(){
+  answers = {};
+  document.getElementById('inNama').value='';
+  document.getElementById('inJenjang').value='';
+  document.getElementById('inKelas').value='';
+  renderStatements();
+  document.getElementById('resultCard').style.display='none';
+  document.getElementById('warnBanner').classList.remove('show');
+}
+
+function renderRecap(){
+  const body = document.getElementById('recapBody');
+  const empty = document.getElementById('emptyState');
+  const table = document.getElementById('recapTable');
+  if(recap.length===0){
+    table.style.display='none'; empty.style.display='block'; return;
+  }
+  table.style.display='table'; empty.style.display='none';
+  body.innerHTML = recap.map((r,i)=>{
+    const info = PROFILE_INFO[r.code];
+    return `<tr>
+      <td>${i+1}</td>
+      <td>${r.nama}</td>
+      <td>${r.jenjang} / ${r.kelas}</td>
+      <td>${r.A}</td>
+      <td>${r.B}</td>
+      <td><span class="pill badge-${r.code}">${r.code}</span></td>
+      <td>${r.tanggal}</td>
+      <td><div class="row-actions">
+        <button title="Unduh PDF" onclick="downloadIndividualPDF(${i})">⬇</button>
+        <button title="Hapus" onclick="deleteRecap(${i})">🗑</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function deleteRecap(i){
+  recap.splice(i,1);
+  renderRecap();
+}
+
+function exportJSON(){
+  const blob = new Blob([JSON.stringify(recap, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'rekap-pola-pikir-'+Date.now()+'.json';
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function importJSON(ev){
+  const file = ev.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const data = JSON.parse(e.target.result);
+      if(Array.isArray(data)){ recap = recap.concat(data); renderRecap(); }
+    }catch(err){ alert('File JSON tidak valid.'); }
+  };
+  reader.readAsText(file);
+  ev.target.value = '';
+}
+
+/* ===== PDF GENERATION ===== */
+function pdfHeader(doc, title){
+  doc.setFillColor(31,58,46);
+  doc.rect(0,0,210,28,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(16);
+  doc.text('Peta Pola Pikir Murid', 14, 13);
+  doc.setFontSize(10);
+  doc.setFont('helvetica','normal');
+  doc.text(title, 14, 20);
+  doc.setTextColor(20,26,20);
+}
+
+function pdfFooter(doc){
+  const h = doc.internal.pageSize.getHeight();
+  doc.setFontSize(8);
+  doc.setTextColor(120,120,120);
+  doc.text('Copyright 2026 Siti Sundari', 14, h-10);
+}
+
+function downloadIndividualPDF(idx){
+  const r = (idx!==undefined) ? recap[idx] : lastResult;
+  if(!r){ alert('Belum ada hasil untuk diunduh.'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  pdfHeader(doc, 'Laporan Hasil Asesmen Individu');
+
+  let y = 40;
+  doc.setFontSize(11);
+  doc.setFont('helvetica','bold');
+  doc.text(`Nama  : ${r.nama}`, 14, y); y+=7;
+  doc.text(`Jenjang / Kelas : ${r.jenjang} / ${r.kelas}`, 14, y); y+=7;
+  doc.text(`Tanggal Asesmen : ${r.tanggal}`, 14, y); y+=12;
+
+  const info = PROFILE_INFO[r.code];
+  doc.setFontSize(13);
+  doc.text(`Profil: ${info.name}`, 14, y); y+=8;
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(10.5);
+  const descLines = doc.splitTextToSize(info.desc, 180);
+  doc.text(descLines, 14, y); y += descLines.length*5.5+4;
+  const tipLines = doc.splitTextToSize(info.tip.replace(/<b>|<\/b>/g,''), 180);
+  doc.text(tipLines, 14, y); y += tipLines.length*5.5+10;
+
+  doc.setFont('helvetica','bold');
+  doc.text(`Skor A (indikasi Pola Pikir Tetap, soal ganjil): ${r.A} dari 5`, 14, y); y+=6;
+  doc.text(`Skor B (indikasi Pola Pikir Bertumbuh, soal genap): ${r.B} dari 5`, 14, y); y+=10;
+
+  doc.setFontSize(11);
+  doc.text('Rincian Jawaban', 14, y); y+=7;
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9.5);
+  r.jawaban.forEach(j=>{
+    const lines = doc.splitTextToSize(`${j.no}. ${j.teks}  —  ${j.jawaban}`, 180);
+    if(y > 270){ pdfFooter(doc); doc.addPage(); pdfHeader(doc,'Laporan Hasil Asesmen Individu (lanjutan)'); y=40; }
+    doc.text(lines, 14, y); y += lines.length*5+2;
+  });
+
+  pdfFooter(doc);
+  doc.save(`hasil-pola-pikir-${r.nama.replace(/\s+/g,'_')}.pdf`);
+}
+
+function downloadRecapPDF(){
+  if(recap.length===0){ alert('Belum ada data rekap.'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  pdfHeader(doc, 'Rekapitulasi Hasil Asesmen Kelas');
+
+  let y = 38;
+  doc.setFontSize(9);
+  doc.setFont('helvetica','bold');
+  const cols = [14, 55, 95, 120, 145, 168];
+  ['Nama','Jenjang/Kelas','A (Tetap)','B (Tumbuh)','Profil','Tanggal'].forEach((c,i)=>doc.text(c, cols[i], y));
+  y += 4;
+  doc.setLineWidth(0.3);
+  doc.line(14, y, 196, y); y += 6;
+  doc.setFont('helvetica','normal');
+
+  recap.forEach(r=>{
+    if(y > 275){ pdfFooter(doc); doc.addPage(); pdfHeader(doc,'Rekapitulasi Hasil Asesmen Kelas (lanjutan)'); y=38; }
+    doc.text(String(r.nama).substring(0,22), cols[0], y);
+    doc.text(`${r.jenjang}/${r.kelas}`, cols[1], y);
+    doc.text(String(r.A), cols[2], y);
+    doc.text(String(r.B), cols[3], y);
+    doc.text(r.code, cols[4], y);
+    doc.text(r.tanggal, cols[5], y);
+    y += 7;
+  });
+
+  y += 6;
+  const counts = {PPT:0, PPB:0, Campuran:0};
+  recap.forEach(r=>counts[r.code]++);
+  doc.setFont('helvetica','bold');
+  doc.text('Ringkasan:', 14, y); y+=7;
+  doc.setFont('helvetica','normal');
+  doc.text(`Pola Pikir Tetap (PPT): ${counts.PPT} murid`, 14, y); y+=6;
+  doc.text(`Pola Pikir Bertumbuh (PPB): ${counts.PPB} murid`, 14, y); y+=6;
+  doc.text(`Pola Pikir Campuran: ${counts.Campuran} murid`, 14, y);
+
+  pdfFooter(doc);
+  doc.save(`rekap-pola-pikir-kelas-${Date.now()}.pdf`);
+}
+</script>
+</body>
+</html>
